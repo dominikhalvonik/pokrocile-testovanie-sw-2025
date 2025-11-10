@@ -1,11 +1,12 @@
 package org.example;
 
+import org.openqa.selenium.*;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.chrome.ChromeDriver;
-import org.openqa.selenium.*;
-import org.openqa.selenium.chrome.ChromeDriver;
+import org.openqa.selenium.chrome.ChromeOptions;
+import org.openqa.selenium.support.ui.WebDriverWait;
 import org.openqa.selenium.interactions.Actions;
 import org.openqa.selenium.support.ui.Select;
 
@@ -18,13 +19,17 @@ import java.io.IOException;
 import java.util.ArrayList;
 
 import java.util.List;
+import java.time.Duration;
 
 // Press Shift twice to open the Search Everywhere dialog and type `show whitespaces`,
 // then press Enter. You can now see whitespace characters in your code.
 public class Main {
     public static void main(String[] args) {
         System.setProperty("webdriver.chrome.driver", "C:\\Users\\Admin\\IdeaProjects\\chrome-drivers\\chromedriver-140.exe");
-        WebDriver driver = new ChromeDriver();
+        ChromeOptions options = new ChromeOptions();
+        options.addArguments("--incognito");              // spusti v inkognite (čistý profil)
+        options.addArguments("--start-maximized");        // voliteľné
+        WebDriver driver = new ChromeDriver(options);
         /*driver.get("https://ais2.ukf.sk/ais/start.do");
         WebElement cookieButton = driver.findElement(By.xpath("/html/body/div[6]/button[1]"));
         cookieButton.click();
@@ -110,24 +115,39 @@ public class Main {
             driver.quit();
         }*/
 
-        /* POZOR TREBA CEKNUT
-        driver.get("https://www.notino.sk/salvatore-ferragamo/incanto-shine-toaletna-voda-pre-zeny/p-62879/");
+
         try {
-            System.out.println("Zacinam");
-            WebElement cookiebutton = driver.findElement(By.id("accept"));
-            cookiebutton.click();
-            Thread.sleep(5000);
+            driver.get("https://www.notino.sk/salvatore-ferragamo/incanto-shine-toaletna-voda-pre-zeny/p-62879/");
 
+            WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(15));
 
-        } catch (InterruptedException e) {
-            System.out.println("Mam error");
-            System.out.println(e.getMessage());
+            WebElement host = wait.until(d ->
+                    d.findElement(By.cssSelector("aside#usercentrics-cmp-ui")));
+
+            SearchContext shadow = host.getShadowRoot();
+
+            WebElement acceptBtn = wait.until(d -> {
+                try {
+                    return shadow.findElement(By.cssSelector("button#accept"));
+                } catch (NoSuchElementException e) {
+                    return null;
+                }
+            });
+
+            if (acceptBtn != null && acceptBtn.isDisplayed()) {
+                acceptBtn.click();
+            }
+
+            Thread.sleep(3000);
+
+        } catch (Exception e) {
+            e.printStackTrace();
         } finally {
-            System.out.println("Final koncim");
             driver.quit();
         }
-         */
 
+
+        /*
         driver.get("https://google.com");
 
         try {
@@ -164,7 +184,6 @@ public class Main {
         }  catch (InterruptedException | IOException e) {
             e.printStackTrace();
         }
-
-        driver.quit();
+         */
     }
 }
